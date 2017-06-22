@@ -9,7 +9,7 @@ function copy(text, callback) {
     }
 }
 
-function paste(callback){
+function paste(callback) {
     var x = document.createElement("INPUT");
     x.setAttribute("type", "text");
     x.select();
@@ -18,23 +18,34 @@ function paste(callback){
     callback(text);
 }
 
-module.exports ={
-    copy: function (success, fail, text){
-        if (!text || !text.length){
-            fail("There is no text to copy");
+module.exports = {
+    copy: function (successCallback, errorCallback, args) {
+        try {
+            var text = args[0];
+            if (!text || !text.length) {
+                fail("There is no text to copy");
+            }
+            setTimeout(function () {
+                copy(text, function () {
+                    successCallback();
+                });
+            }, 0);
         }
-        setTimeout(function(){
-            copy(text, function(){
-                success();
-            });
-        }, 0)
+        catch (e) {
+            errorCallback(e);
+        }
     },
-    paste: function(success, fail){
-        setTimeout(function(){
-            paste(function(text){
-                success(text);
-            })
-        })
+    paste: function (successCallback, errorCallback) {
+        try {
+            setTimeout(function () {
+                paste(function (text) {
+                    successCallback(text);
+                })
+            }, 0);
+        }
+        catch (e) {
+            errorCallback(e);
+        }
     }
 }
 require("cordova/exec/proxy").add("Clipboard", module.exports);
